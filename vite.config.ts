@@ -12,8 +12,9 @@ export default defineConfig({
   ],
   server: {
     proxy: {
+      // Dev only: proxy /api → backend. In production, VITE_API_BASE_URL points to the deployed API.
       '/api': {
-        target: 'https://merchandise-api.onrender.com',
+        target: process.env.VITE_API_BASE_URL || 'http://localhost:8080',
         changeOrigin: true,
       },
     },

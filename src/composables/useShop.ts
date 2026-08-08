@@ -1,4 +1,4 @@
-import { computed, reactive } from 'vue'
+﻿import { computed, reactive } from 'vue'
 
 export type Product = {
   id: number
@@ -44,6 +44,8 @@ type ShopState = {
   error: string
 }
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? ''
+
 const state = reactive<ShopState>({
   products: [],
   cart: { items: [], total: 0 },
@@ -83,7 +85,7 @@ async function init() {
 
 async function registerMember(name: string, email: string, password: string) {
   clearFeedback()
-  const response = await fetch('/api/auth/register', {
+  const response = await fetch(`${API_BASE}/api/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, email, password })
@@ -100,7 +102,7 @@ async function registerMember(name: string, email: string, password: string) {
 
 async function loginMember(email: string, password: string) {
   clearFeedback()
-  const response = await fetch('/api/auth/login', {
+  const response = await fetch(`${API_BASE}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
@@ -132,7 +134,7 @@ function logoutMember() {
 async function loadProducts() {
   state.loadingProducts = true
   try {
-    const response = await fetch('/api/products')
+    const response = await fetch(`${API_BASE}/api/products`)
     if (!response.ok) {
       state.error = await readError(response)
       return
@@ -151,7 +153,7 @@ async function loadCart() {
 
   state.loadingCart = true
   try {
-    const response = await fetch('/api/cart', { headers: authHeaders() })
+    const response = await fetch(`${API_BASE}/api/cart`, { headers: authHeaders() })
     if (!response.ok) {
       state.error = await readError(response)
       return
@@ -169,7 +171,7 @@ async function addToCart(productId: number, quantity = 1) {
     return false
   }
 
-  const response = await fetch('/api/cart/items', {
+  const response = await fetch(`${API_BASE}/api/cart/items`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ product_id: productId, quantity })
@@ -187,7 +189,7 @@ async function addToCart(productId: number, quantity = 1) {
 
 async function removeFromCart(productId: number) {
   clearFeedback()
-  const response = await fetch(`/api/cart/items/${productId}`, {
+  const response = await fetch(`${API_BASE}/api/cart/items/${productId}`, {
     method: 'DELETE',
     headers: authHeaders()
   })
@@ -204,7 +206,7 @@ async function removeFromCart(productId: number) {
 
 async function checkout(address: string) {
   clearFeedback()
-  const response = await fetch('/api/orders/checkout', {
+  const response = await fetch(`${API_BASE}/api/orders/checkout`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ address })
@@ -233,7 +235,7 @@ async function payOrder(paymentMethod: string) {
   }
 
   clearFeedback()
-  const response = await fetch(`/api/orders/${state.latestOrder.id}/pay`, {
+  const response = await fetch(`${API_BASE}/api/orders/${state.latestOrder.id}/pay`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ payment_method: paymentMethod })
@@ -256,7 +258,7 @@ async function refreshDeliveryStatus() {
     return false
   }
 
-  const response = await fetch(`/api/orders/${state.latestOrder.id}/delivery-status`, {
+  const response = await fetch(`${API_BASE}/api/orders/${state.latestOrder.id}/delivery-status`, {
     headers: authHeaders()
   })
   if (!response.ok) {
@@ -275,7 +277,7 @@ async function advanceDeliveryStatus() {
   }
 
   clearFeedback()
-  const response = await fetch(`/api/orders/${state.latestOrder.id}/delivery-status/advance`, {
+  const response = await fetch(`${API_BASE}/api/orders/${state.latestOrder.id}/delivery-status/advance`, {
     method: 'POST',
     headers: authHeaders()
   })
